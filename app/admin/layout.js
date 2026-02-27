@@ -32,6 +32,7 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/users" label="Users" />
           <NavItem href="/admin/specializations" label="Doctor Specializations" />
           <NavItem href="/admin/doctors" label="Doctors" />
+          <NavItem href="/admin/login" label="Logout" variant="danger" />
         </nav>
 
         <div className="px-6 py-4 border-t text-xs text-gray-400">
@@ -45,11 +46,15 @@ export default function AdminLayout({ children }) {
   );
 }
 
-function NavItem({ href, label }) {
+function NavItem({ href, label, variant }) {
   return (
     <Link
       href={href}
-      className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+      className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+        variant === "danger"
+          ? "text-red-600 hover:bg-red-50 hover:text-red-700"
+          : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+      }`}
     >
       <span>{label}</span>
     </Link>
