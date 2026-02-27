@@ -13,8 +13,18 @@ export async function POST(req) {
   try {
     // TODO: Add authentication check here in production
     // For example, check for a secret token or require admin authentication
-    
-    const { email, password } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error("[create-admin] Invalid JSON body:", parseError);
+      return NextResponse.json(
+        { success: false, message: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+
+    const { email, password } = body || {};
 
 
     // Validate input
