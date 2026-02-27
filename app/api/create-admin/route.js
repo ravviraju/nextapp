@@ -15,7 +15,7 @@ export async function POST(req) {
     // For example, check for a secret token or require admin authentication
     
     const { email, password } = await req.json();
-    console.log("[create-admin] Body parsed", { email });
+
 
     // Validate input
     if (!email || !password) {
@@ -45,7 +45,7 @@ export async function POST(req) {
     // Create admin user
     const userId = await createAdminUser(email, password);
 
-    console.log("[create-admin] Admin created", { userId: userId.toString() });
+ 
     return NextResponse.json({
       success: true,
       message: "Admin user created successfully",
