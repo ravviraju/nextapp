@@ -46,7 +46,8 @@ export async function POST(req) {
 
     // Login successful
     console.log("[admin-login] Login successful", { email: user.email, role: user.role });
-    return NextResponse.json({
+
+    const response = NextResponse.json({
       success: true,
       message: "Login successful",
       user: {
@@ -54,6 +55,15 @@ export async function POST(req) {
         role: user.role,
       },
     });
+
+    // Very simple admin session cookie – presence means logged in.
+    response.cookies.set("admin_session", "active", {
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 60 * 4, // 4 hours
+    });
+
+    return response;
   } catch (error) {
     console.error("[admin-login] ERROR:", {
       message: error?.message,

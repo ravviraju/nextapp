@@ -1,7 +1,30 @@
+\"use client\";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Do not show admin shell on login page
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin-logout", {
+        method: "POST",
+      });
+    } catch (e) {
+      console.error("Logout error", e);
+    } finally {
+      router.push("/admin/login");
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
@@ -32,7 +55,13 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/users" label="Users" />
           <NavItem href="/admin/specializations" label="Doctor Specializations" />
           <NavItem href="/admin/doctors" label="Doctors" />
-          <NavItem href="/admin/login" label="Logout" variant="danger" />
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full text-left flex items-center px-3 py-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-sm"
+          >
+            Logout
+          </button>
         </nav>
 
         <div className="px-6 py-4 border-t text-xs text-gray-400">
