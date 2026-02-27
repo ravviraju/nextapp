@@ -29,7 +29,7 @@ export default function AdminLogin() {
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
         
         <h2 className="text-2xl font-bold text-center mb-6">
-          Admin Login
+          Admin Main Login
         </h2>
 
         <input
