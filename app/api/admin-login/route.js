@@ -3,6 +3,7 @@ import { findUserByEmail, verifyPassword } from "@/lib/models/User";
 
 export async function POST(req) {
   try {
+    console.log("[admin-login] Incoming request");
     const { email, password } = await req.json();
 
     // Validate input
@@ -34,6 +35,7 @@ export async function POST(req) {
     }
 
     // Verify password
+    console.log("[admin-login] Verifying password");
     const isPasswordValid = await verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
@@ -44,6 +46,7 @@ export async function POST(req) {
     }
 
     // Login successful
+    console.log("[admin-login] Login successful", { email: user.email, role: user.role });
     return NextResponse.json({
       success: true,
       message: "Login successful",
@@ -53,10 +56,19 @@ export async function POST(req) {
       },
     });
   } catch (error) {
-    console.log("[admin-login] Body parsed", error);
-    console.error("Login error:", error);
+    console.error("[admin-login] ERROR:", {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      {
+        success: false,
+        message: "Internal server error",
+        ...(process.env.NODE_ENV !== "production" && {
+          debug: error?.message || "Unknown error",
+        }),
+      },
       { status: 500 }
     );
   }
