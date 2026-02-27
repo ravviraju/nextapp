@@ -3,7 +3,7 @@ import { findUserByEmail, verifyPassword } from "@/lib/models/User";
 
 export async function POST(req) {
   try {
-    console.log("[admin-login] Incoming request");
+
     const { email, password } = await req.json();
 
     // Validate input
@@ -35,7 +35,6 @@ export async function POST(req) {
     }
 
     // Verify password
-    console.log("[admin-login] Verifying password");
     const isPasswordValid = await verifyPassword(password, user.password);
 
     if (!isPasswordValid) {

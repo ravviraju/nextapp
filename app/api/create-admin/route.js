@@ -11,7 +11,6 @@ import { createAdminUser } from "@/lib/models/User";
  */
 export async function POST(req) {
   try {
-    console.log("[create-admin] Incoming request");
     // TODO: Add authentication check here in production
     // For example, check for a secret token or require admin authentication
     
