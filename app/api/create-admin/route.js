@@ -44,7 +44,6 @@ export async function POST(req) {
     }
 
     // Create admin user
-    console.log("[create-admin] Creating admin user");
     const userId = await createAdminUser(email, password);
 
     console.log("[create-admin] Admin created", { userId: userId.toString() });
