@@ -13,6 +13,8 @@ export async function POST(req) {
       );
     }
 
+    console.log("[admin-login] Body parsed", { email });
+
     // Find user in database
     const user = await findUserByEmail(email);
 
@@ -51,6 +53,7 @@ export async function POST(req) {
       },
     });
   } catch (error) {
+    console.log("[admin-login] Body parsed", error);
     console.error("Login error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
