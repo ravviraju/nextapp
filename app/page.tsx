@@ -19,7 +19,7 @@ export default function Home() {
             />
             <div>
               <h1 className="text-xl font-bold text-slate-800">
-                CareWell Hospital
+                Raju Hospital
               </h1>
               <p className="text-xs text-slate-500">
                 Doctors &amp; Specialists
@@ -38,7 +38,7 @@ export default function Home() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 py-16 text-center">
         <h2 className="text-4xl font-bold text-slate-800 mb-4">
-          Welcome to CareWell Hospital
+          Welcome to Raju Hospital
         </h2>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
           Your trusted healthcare partner. We bring together experienced
@@ -68,7 +68,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-slate-800 text-slate-300 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm">
-          <p>© {new Date().getFullYear()} CareWell Hospital. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Raju Hospital. All rights reserved.</p>
         </div>
       </footer>
     </div>

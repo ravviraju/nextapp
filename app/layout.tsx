@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CareWell Hospital | Doctors & Specialists",
+  title: "Raju Hospital | Doctors & Specialists",
   description: "Your trusted healthcare partner. Browse our doctors and specialists.",
 };
 
