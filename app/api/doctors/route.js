@@ -25,6 +25,7 @@ export async function POST(req) {
       contactEmail,
       contactPhone,
       notes,
+      imageUrl,
     } = body || {};
 
     if (!name || !specializationId) {
@@ -50,6 +51,7 @@ export async function POST(req) {
       contactEmail,
       contactPhone,
       notes,
+      imageUrl,
     });
 
     return NextResponse.json({

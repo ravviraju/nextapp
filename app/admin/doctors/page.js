@@ -13,6 +13,8 @@ export default function AdminDoctorsPage() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const [loadingSave, setLoadingSave] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
@@ -65,6 +67,56 @@ export default function AdminDoctorsPage() {
     setContactEmail("");
     setContactPhone("");
     setNotes("");
+    setImageUrl("");
+    setImageFile(null);
+  };
+
+  const resizeImage = (file, maxWidth = 300, maxHeight = 300, quality = 0.85) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let { width, height } = img;
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file (JPEG, PNG, etc.)");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be under 2MB");
+      return;
+    }
+    setImageFile(file);
+    try {
+      const dataUrl = await resizeImage(file);
+      setImageUrl(dataUrl);
+    } catch (err) {
+      console.error("Image resize error", err);
+      alert("Failed to process image");
+    }
   };
 
   const handleSubmit = async () => {
@@ -83,6 +135,7 @@ export default function AdminDoctorsPage() {
         contactEmail,
         contactPhone,
         notes,
+        imageUrl: imageUrl || undefined,
       };
 
       let res;
@@ -119,9 +172,11 @@ export default function AdminDoctorsPage() {
   const handleEditClick = (doctor) => {
     setEditId(doctor._id);
     setName(doctor.name || "");
-    setSpecializationId(
-      doctor.specializationId || doctor.specialization?._id || ""
-    );
+    const specId =
+      doctor.specializationId?.toString?.() ||
+      doctor.specialization?._id?.toString?.() ||
+      "";
+    setSpecializationId(specId);
     setQualification(doctor.qualification || "");
     setExperienceYears(
       doctor.experienceYears != null ? String(doctor.experienceYears) : ""
@@ -129,6 +184,8 @@ export default function AdminDoctorsPage() {
     setContactEmail(doctor.contactEmail || "");
     setContactPhone(doctor.contactPhone || "");
     setNotes(doctor.notes || "");
+    setImageUrl(doctor.imageUrl || "");
+    setImageFile(null);
   };
 
   const handleDelete = async (id) => {
@@ -158,6 +215,35 @@ export default function AdminDoctorsPage() {
           {editId ? "Edit Doctor" : "Add Doctor"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2 flex flex-col sm:flex-row items-start gap-4">
+            <div className="flex-shrink-0">
+              <div className="w-24 h-24 rounded-full border-2 border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="Doctor"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-sm">No photo</span>
+                )}
+              </div>
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Profile Photo
+              </label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleImageChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                JPEG, PNG or WebP. Max 2MB. Will be resized for display.
+              </p>
+            </div>
+          </div>
           <input
             type="text"
             placeholder="Doctor Name"
@@ -252,6 +338,7 @@ export default function AdminDoctorsPage() {
             <table className="min-w-full border border-gray-200 text-sm">
               <thead className="bg-gray-100">
                 <tr>
+                  <th className="px-4 py-2 border-b text-left w-16">Photo</th>
                   <th className="px-4 py-2 border-b text-left">Name</th>
                   <th className="px-4 py-2 border-b text-left">Specialization</th>
                   <th className="px-4 py-2 border-b text-left">Qualification</th>
@@ -263,6 +350,19 @@ export default function AdminDoctorsPage() {
               <tbody>
                 {doctors.map((doctor) => (
                   <tr key={doctor._id}>
+                    <td className="px-4 py-2 border-b">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        {doctor.imageUrl ? (
+                          <img
+                            src={doctor.imageUrl}
+                            alt={doctor.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs">—</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-2 border-b">{doctor.name}</td>
                     <td className="px-4 py-2 border-b">
                       {doctor.specialization?.name || "-"}
