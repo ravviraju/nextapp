@@ -125,6 +125,32 @@ export default function AdminDoctorsPage() {
       return;
     }
 
+    // If we have a local data URL image, upload it to Cloudinary first
+    let finalImageUrl = imageUrl;
+    if (imageUrl && imageUrl.startsWith("data:image/")) {
+      try {
+        const uploadRes = await fetch("/api/upload-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageData: imageUrl,
+            folder: "doctors",
+          }),
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.success) {
+          console.error("Image upload failed", uploadData);
+          alert(uploadData.message || "Failed to upload image");
+          return;
+        }
+        finalImageUrl = uploadData.url;
+      } catch (err) {
+        console.error("Image upload error", err);
+        alert("Failed to upload image");
+        return;
+      }
+    }
+
     try {
       setLoadingSave(true);
       const payload = {
@@ -135,7 +161,7 @@ export default function AdminDoctorsPage() {
         contactEmail,
         contactPhone,
         notes,
-        imageUrl: imageUrl || undefined,
+        imageUrl: finalImageUrl || undefined,
       };
 
       let res;
