@@ -60,7 +60,7 @@ export async function POST(req) {
       id: id.toString(),
     });
   } catch (error) {
-    console.error("[doctors] POST ERROR:", error);
+    //console.error("[doctors] POST ERROR:", error);
     return NextResponse.json(
       { success: false, message: "Failed to create doctor" },
       { status: 500 }
