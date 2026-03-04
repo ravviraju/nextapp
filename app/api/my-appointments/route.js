@@ -4,7 +4,7 @@ import { getAppointmentsForUser } from "@/lib/models/Appointment";
 
 export async function GET() {
   try {
-    const store = cookies();
+    const store = await cookies();
     const session = store.get("user_session");
 
     if (!session?.value) {
