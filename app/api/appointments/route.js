@@ -34,17 +34,19 @@ export async function POST(req) {
       );
     }
 
-    // Attach userId if there is a logged-in user (for website bookings)
-    let userId;
-    try {
-      const store = cookies();
-      const session = store.get("user_session");
-      if (session?.value) {
-        userId = session.value;
-      }
-    } catch {
-      // cookies() is only available in a request context; ignore if not
+    const store = cookies();
+    const userSession = store.get("user_session");
+    const adminSession = store.get("admin_session");
+
+    // Require either a logged-in user (website) or admin (admin panel)
+    if (!userSession?.value && !adminSession?.value) {
+      return NextResponse.json(
+        { success: false, message: "Not authenticated" },
+        { status: 401 }
+      );
     }
+
+    const userId = userSession?.value;
 
     const id = await createAppointment({
       doctorId,

@@ -74,6 +74,16 @@ export default function BookAppointmentPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error", e);
+    } finally {
+      router.push("/login");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -81,12 +91,21 @@ export default function BookAppointmentPage() {
           <h1 className="text-2xl font-bold text-slate-800">
             Book an Appointment
           </h1>
-          <Link
-            href="/appointments"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Back to My Appointments
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-xs text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg px-3 py-1 hover:bg-slate-100 transition"
+            >
+              Logout
+            </button>
+            <Link
+              href="/appointments"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Back to My Appointments
+            </Link>
+          </div>
         </div>
 
         {error && (
