@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import {
   createAppointment,
   getAllAppointments,
 } from "@/lib/models/Appointment";
+
+function parseCookies(header) {
+  const result = {};
+  if (!header) return result;
+  const pairs = header.split(";");
+  for (const pair of pairs) {
+    const [key, ...rest] = pair.split("=");
+    if (!key) continue;
+    const name = key.trim();
+    const value = rest.join("=").trim();
+    if (!name) continue;
+    result[name] = decodeURIComponent(value || "");
+  }
+  return result;
+}
 
 export async function GET() {
   try {
@@ -34,19 +48,20 @@ export async function POST(req) {
       );
     }
 
-    const store = cookies();
-    const userSession = store.get("user_session");
-    const adminSession = store.get("admin_session");
+    const cookieHeader = req.headers.get("cookie") || "";
+    const parsed = parseCookies(cookieHeader);
+    const userSession = parsed["user_session"];
+    const adminSession = parsed["admin_session"];
 
     // Require either a logged-in user (website) or admin (admin panel)
-    if (!userSession?.value && !adminSession?.value) {
+    if (!userSession && !adminSession) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
         { status: 401 }
       );
     }
 
-    const userId = userSession?.value;
+    const userId = userSession || undefined;
 
     const id = await createAppointment({
       doctorId,

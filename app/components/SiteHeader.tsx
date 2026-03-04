@@ -5,13 +5,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type UserInfo = { id: string; email: string; name: string };
 type MeResponse =
-  | { success: true; user: { id: string; email: string; name: string } }
+  | { success: true; user: UserInfo }
   | { success: false; message: string };
 
 export default function SiteHeader() {
   const router = useRouter();
-  const [user, setUser] = useState<MeResponse["user"] | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     let cancelled = false;
