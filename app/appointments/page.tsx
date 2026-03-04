@@ -14,7 +14,9 @@ export default function MyAppointmentsPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/my-appointments");
+        const res = await fetch("/api/my-appointments", {
+          credentials: "include",
+        });
         const data = await res.json();
         if (!res.ok || !data.success) {
           if (res.status === 401) {
