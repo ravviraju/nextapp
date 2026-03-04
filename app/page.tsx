@@ -26,12 +26,26 @@ export default function Home() {
               </p>
             </div>
           </Link>
-          <Link
-            href="/admin/login"
-            className="text-sm font-medium text-sky-600 hover:text-sky-700 px-4 py-2 rounded-lg hover:bg-sky-50 transition"
-          >
-            Admin Login
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/appointments"
+              className="text-sm font-medium text-sky-600 hover:text-sky-700 px-3 py-2 rounded-lg hover:bg-sky-50 transition"
+            >
+              My Appointments
+            </Link>
+            <Link
+              href="/login"
+              className="text-sm font-medium text-sky-600 hover:text-sky-700 px-3 py-2 rounded-lg hover:bg-sky-50 transition"
+            >
+              Patient Login
+            </Link>
+            <Link
+              href="/admin/login"
+              className="text-xs font-medium text-slate-500 hover:text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-100 transition border border-slate-200"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
       </header>
 

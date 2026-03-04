@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
   createAppointment,
   getAllAppointments,
@@ -33,6 +34,18 @@ export async function POST(req) {
       );
     }
 
+    // Attach userId if there is a logged-in user (for website bookings)
+    let userId;
+    try {
+      const store = cookies();
+      const session = store.get("user_session");
+      if (session?.value) {
+        userId = session.value;
+      }
+    } catch {
+      // cookies() is only available in a request context; ignore if not
+    }
+
     const id = await createAppointment({
       doctorId,
       date,
@@ -40,6 +53,7 @@ export async function POST(req) {
       patientName,
       patientPhone,
       notes,
+      userId,
     });
 
     return NextResponse.json({
