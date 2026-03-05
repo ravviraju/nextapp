@@ -8,6 +8,8 @@ export async function PUT(req, { params }) {
 
     const result = await updateDoctor(id, body || {});
 
+    alert(JSON.stringify(result));
+
     if (!result?.matchedCount) {
       return NextResponse.json(
         { success: false, message: "Doctor not found" },
