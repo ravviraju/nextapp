@@ -6,11 +6,20 @@ export async function PUT(req, { params }) {
     const { id } = params;
     const body = await req.json();
 
-    await updateDoctor(id, body || {});
+    const result = await updateDoctor(id, body || {});
+
+    if (!result?.matchedCount) {
+      return NextResponse.json(
+        { success: false, message: "Doctor not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: "Doctor updated",
+      modifiedCount: result.modifiedCount,
+      doctor: result.doctor,
     });
   } catch (error) {
     console.error("[doctors/:id] PUT ERROR:", error);
