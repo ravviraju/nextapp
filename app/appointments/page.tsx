@@ -19,19 +19,17 @@ export default function MyAppointmentsPage() {
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
-          if (res.status === 401) {
-            setError("not-auth");
-          } else {
-            setError(data.message || "Failed to load appointments");
-          }
+          // For any error, require login
+          setError("not-auth");
           setAppointments([]);
-        } else {
-          setAppointments(data.appointments || []);
-          setError(null);
+          return;
         }
+        setAppointments(data.appointments || []);
+        setError(null);
       } catch (err) {
         console.error("Load appointments error", err);
-        setError("Failed to load appointments");
+        setError("not-auth");
+        setAppointments([]);
       } finally {
         setLoading(false);
       }
@@ -106,12 +104,6 @@ export default function MyAppointmentsPage() {
             </Link>
           </div>
         </div>
-
-        {error && (
-          <p className="text-red-600 text-sm mb-4">
-            {typeof error === "string" ? error : "Something went wrong"}
-          </p>
-        )}
 
         {appointments.length === 0 ? (
           <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200 text-center">
