@@ -69,10 +69,10 @@ export default function SiteHeader() {
 
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <Link
-            href="/appointments"
+            href="/about"
             className="text-sm font-medium text-sky-600 hover:text-sky-700 px-3 py-2 rounded-lg hover:bg-sky-50 transition"
           >
-            My Appointments
+            About Us
           </Link>
           {user ? (
             <>
@@ -87,6 +87,12 @@ export default function SiteHeader() {
                 Logout
               </button>
             </>
+            <Link
+            href="/appointments"
+            className="text-sm font-medium text-sky-600 hover:text-sky-700 px-3 py-2 rounded-lg hover:bg-sky-50 transition"
+          >
+            My Appointments
+          </Link>
           ) : (
             <>
               <Link
