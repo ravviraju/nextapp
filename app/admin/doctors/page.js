@@ -16,6 +16,8 @@ export default function AdminDoctorsPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [imageFile, setImageFile] = useState(null);
 
+  const [fee, setFee] = useState("");
+
   const [loadingSave, setLoadingSave] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -61,6 +63,7 @@ export default function AdminDoctorsPage() {
   const resetForm = () => {
     setEditId(null);
     setName("");
+    setFee("");
     setSpecializationId("");
     setQualification("");
     setExperienceYears("");
@@ -155,6 +158,7 @@ export default function AdminDoctorsPage() {
       setLoadingSave(true);
       const payload = {
         name,
+        fee,
         specializationId,
         qualification,
         experienceYears,
@@ -198,6 +202,7 @@ export default function AdminDoctorsPage() {
   const handleEditClick = (doctor) => {
     setEditId(doctor._id);
     setName(doctor.name || "");
+    setFee(doctor.fee || "");
     const specId =
       doctor.specializationId?.toString?.() ||
       doctor.specialization?._id?.toString?.() ||
@@ -317,6 +322,13 @@ export default function AdminDoctorsPage() {
             className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Consultation Fee"
+            className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={fee}
+            onChange={(e) => setFee(e.target.value)}
           />
           <textarea
             placeholder="Notes / Additional info"

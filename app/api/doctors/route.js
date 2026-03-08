@@ -19,6 +19,7 @@ export async function POST(req) {
     const body = await req.json();
     const {
       name,
+      fee,
       specializationId,
       qualification,
       experienceYears,
