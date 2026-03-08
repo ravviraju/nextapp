@@ -43,6 +43,7 @@ export async function POST(req) {
 
     const id = await createDoctor({
       name,
+      fee,
       specializationId,
       qualification,
       experienceYears:
