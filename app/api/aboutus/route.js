@@ -21,8 +21,8 @@ function parseCookies(header) {
 
 export async function GET() {
   try {
-    const appointments = await getContent();
-    return NextResponse.json({ success: true, appointments });
+    const data = await getContent();
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("[appointments] GET ERROR:", error);
     return NextResponse.json(
