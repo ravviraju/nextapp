@@ -11,7 +11,7 @@ export default function AboutPage() {
   }, []);
 
   const fetchAbout = async () => {
-    const res = await fetch("/api/about");
+    const res = await fetch("/api/aboutus");
     const data = await res.json();
 
     if (data.data) {
@@ -21,7 +21,7 @@ export default function AboutPage() {
   };
 
   const updateAbout = async () => {
-    const res = await fetch("/api/about", {
+    const res = await fetch("/api/aboutus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
