@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function AboutPage() {
-  const [about, setAbout] = useState<any[]>([]);
+  const [about, setAbout] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,19 +39,15 @@ export default function AboutPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">About Us</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            About Us
-          </p>
+          <h1 className="text-2xl font-bold text-slate-800">{about.title}</h1>
+        
         </div>
       
       </div>
 
       
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center">
-          <p className="text-slate-600 mb-4">
-            {about.title}
-          </p>
+         
           <p className="text-slate-600 mb-4">
             {about.description}
           </p>
