@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function MyAppointmentsPage() {
-  const router = useRouter();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +37,8 @@ export default function MyAppointmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-600">Loading your appointments...</p>
+      <div className="flex items-center justify-center py-14">
+        <p className="text-slate-600">Loading your appointments...</p>
       </div>
     );
   }
@@ -71,87 +69,99 @@ export default function MyAppointmentsPage() {
     );
   }
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-    } catch (e) {
-      console.error("Logout error", e);
-    } finally {
-      router.push("/login");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">
-            My Appointments
-          </h1>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-xs text-slate-500 hover:text-slate-800 border border-slate-200 rounded-lg px-3 py-1 hover:bg-slate-100 transition"
-            >
-              Logout
-            </button>
-            <Link
-              href="/appointments/book"
-              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Book New Appointment
-            </Link>
-          </div>
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">My Appointments</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            View and manage your booked appointments.
+          </p>
         </div>
+        <Link
+          href="/appointments/book"
+          className="inline-flex items-center justify-center text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Book New Appointment
+        </Link>
+      </div>
 
-        {appointments.length === 0 ? (
-          <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200 text-center">
-            <p className="text-slate-500 mb-4">
-              You have no appointments booked yet.
-            </p>
-            <Link
-              href="/appointments/book"
-              className="text-blue-600 hover:underline"
-            >
-              Book your first appointment
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {appointments.length === 0 ? (
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center">
+          <p className="text-slate-600 mb-4">
+            You have no appointments booked yet.
+          </p>
+          <Link href="/appointments/book" className="text-blue-600 hover:underline">
+            Book your first appointment
+          </Link>
+        </div>
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="px-4 py-2 text-left border-b">Doctor</th>
-                  <th className="px-4 py-2 text-left border-b">
-                    Specialization
-                  </th>
-                  <th className="px-4 py-2 text-left border-b">Date</th>
-                  <th className="px-4 py-2 text-left border-b">Time</th>
-                  <th className="px-4 py-2 text-left border-b">Status</th>
+                  <th className="px-4 py-3 text-left border-b">Doctor</th>
+                  <th className="px-4 py-3 text-left border-b">Specialization</th>
+                  <th className="px-4 py-3 text-left border-b">Date</th>
+                  <th className="px-4 py-3 text-left border-b">Time</th>
+                  <th className="px-4 py-3 text-left border-b">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {appointments.map((a) => (
-                  <tr key={a._id}>
-                    <td className="px-4 py-2 border-b">
+                  <tr key={a._id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 border-b font-medium text-slate-800">
                       {a.doctor?.name || "-"}
                     </td>
-                    <td className="px-4 py-2 border-b">
+                    <td className="px-4 py-3 border-b text-slate-600">
                       {a.specialization?.name || "-"}
                     </td>
-                    <td className="px-4 py-2 border-b">{a.date}</td>
-                    <td className="px-4 py-2 border-b">{a.time}</td>
-                    <td className="px-4 py-2 border-b capitalize">
-                      {a.status || "scheduled"}
+                    <td className="px-4 py-3 border-b text-slate-600">{a.date}</td>
+                    <td className="px-4 py-3 border-b text-slate-600">{a.time}</td>
+                    <td className="px-4 py-3 border-b">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-700 capitalize">
+                        {a.status || "scheduled"}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden grid grid-cols-1 gap-3">
+            {appointments.map((a) => (
+              <div
+                key={a._id}
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-slate-800">
+                      {a.doctor?.name || "-"}
+                    </div>
+                    <div className="text-sm text-slate-500">
+                      {a.specialization?.name || "-"}
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-700 capitalize">
+                    {a.status || "scheduled"}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-slate-500">Date</div>
+                  <div className="text-slate-800 text-right">{a.date}</div>
+                  <div className="text-slate-500">Time</div>
+                  <div className="text-slate-800 text-right">{a.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

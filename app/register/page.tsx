@@ -39,8 +39,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+    <div className="flex items-center justify-center py-10 sm:py-14">
+      <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-6 sm:p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">
           Patient Registration
         </h2>

@@ -2,16 +2,23 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Do not show admin shell on login page
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
+
+  useEffect(() => {
+    // Close sidebar after navigation
+    setSidebarOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -27,8 +34,50 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="min-h-screen flex bg-gray-100">
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="relative h-8 w-8">
+              <Image
+                src="/window.svg"
+                alt="Hospital Admin Logo"
+                fill
+                className="object-contain"
+                sizes="32px"
+                priority
+              />
+            </div>
+            <div className="text-sm font-semibold text-gray-900">
+              Hospital Admin
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            Menu
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => setSidebarOpen(false)}
+          className="md:hidden fixed inset-0 z-40 bg-black/30"
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg flex flex-col">
+      <aside
+        className={`fixed md:static z-50 md:z-auto inset-y-0 left-0 w-72 md:w-64 bg-white shadow-lg flex flex-col transform transition-transform duration-200 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         <div className="flex items-center gap-3 px-6 py-5 border-b">
           <div className="relative h-9 w-9">
             <Image
@@ -56,6 +105,7 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/specializations" label="Doctor Specializations" />
           <NavItem href="/admin/doctors" label="Doctors" />
           <NavItem href="/admin/appointments" label="Appointments" />
+          <NavItem href="/admin/aboutus" label="About Us" />
           <button
             type="button"
             onClick={handleLogout}
@@ -71,7 +121,9 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 md:ml-0 pt-16 md:pt-6">
+        {children}
+      </main>
     </div>
   );
 }

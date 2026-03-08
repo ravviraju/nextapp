@@ -1,14 +1,11 @@
 import DoctorsList from "./components/DoctorsList";
-import SiteHeader from "./components/SiteHeader";
 
 export default function Home() {
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <SiteHeader />
-
+    <div>
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 py-16 text-center">
+      <section className="py-10 sm:py-14 text-center">
         <h2 className="text-4xl font-bold text-slate-800 mb-4">
           Welcome to Raju Hospital
         </h2>
@@ -30,19 +27,12 @@ export default function Home() {
       </section>
 
       {/* Our Doctors */}
-      <section className="max-w-6xl mx-auto px-4 pb-20">
+      <section className="pb-8 sm:pb-14">
         <h3 className="text-2xl font-bold text-slate-800 mb-6">
           Our Doctors
         </h3>
         <DoctorsList />
       </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-800 text-slate-300 py-8 mt-12">
-        <div className="max-w-6xl mx-auto px-4 text-center text-sm">
-          <p>© {new Date().getFullYear()} Raju Hospital. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }
