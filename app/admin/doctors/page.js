@@ -324,7 +324,7 @@ export default function AdminDoctorsPage() {
             onChange={(e) => setContactPhone(e.target.value)}
           />
           <input
-            type="text"
+            type="number"
             placeholder="Consultation Fee"
             className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={fee}
