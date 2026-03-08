@@ -378,6 +378,7 @@ export default function AdminDoctorsPage() {
                 <tr>
                   <th className="px-4 py-2 border-b text-left w-16">Photo</th>
                   <th className="px-4 py-2 border-b text-left">Name</th>
+                  <th className="px-4 py-2 border-b text-left">Fee</th>
                   <th className="px-4 py-2 border-b text-left">Specialization</th>
                   <th className="px-4 py-2 border-b text-left">Qualification</th>
                   <th className="px-4 py-2 border-b text-left">Experience</th>
@@ -402,6 +403,7 @@ export default function AdminDoctorsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-2 border-b">{doctor.name}</td>
+                    <td className="px-4 py-2 border-b">{doctor.fee}/-</td>
                     <td className="px-4 py-2 border-b">
                       {doctor.specialization?.name || "-"}
                     </td>
