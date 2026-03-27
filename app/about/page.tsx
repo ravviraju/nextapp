@@ -45,13 +45,10 @@ export default function AboutPage() {
       
       </div>
 
-      
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 text-center">
-         
-          <p className="text-slate-600 mb-4">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+          <div className="prose prose-slate max-w-none">
             {about.description}
-          </p>
-         
+          </div>
         </div>
       
     </div>

@@ -106,6 +106,9 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/doctors" label="Doctors" />
           <NavItem href="/admin/appointments" label="Appointments" />
           <NavItem href="/admin/aboutus" label="About Us" />
+          <NavItem href="/admin/pharma-inventory" label="Pharma Inventory" />
+          <NavItem href="/admin/pharma-bills" label="Pharma Billing" />
+          <NavItem href="/admin/aboutus" label="About Us" />
           <button
             type="button"
             onClick={handleLogout}

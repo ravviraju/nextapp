@@ -24,7 +24,7 @@ export async function GET() {
     const data = await getContent();
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error("[appointments] GET ERROR:", error);
+    console.error("[aboutus] GET ERROR:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch appointments" },
       { status: 500 }
@@ -50,18 +50,15 @@ export async function POST(req) {
 
     const cookieHeader = req.headers.get("cookie") || "";
     const parsed = parseCookies(cookieHeader);
-    const userSession = parsed["user_session"];
     const adminSession = parsed["admin_session"];
 
-    // Require either a logged-in user (website) or admin (admin panel)
-    if (!userSession && !adminSession) {
+    // Admin only
+    if (!adminSession) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
         { status: 401 }
       );
     }
-
-    const userId = userSession || undefined;
 
     const id = await updateContent({
       title,
@@ -70,7 +67,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      message: "About Us content created",
+      message: "About Us content updated",
       id: id.toString(),
     });
   } catch (error) {
