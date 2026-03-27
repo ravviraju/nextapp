@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 export default function PharmaBillsPage() {
   const [inventory, setInventory] = useState([]);
   const [bills, setBills] = useState([]);
+  const [expandedBillId, setExpandedBillId] = useState(null);
 
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
@@ -19,6 +20,13 @@ export default function PharmaBillsPage() {
   const [loadingList, setLoadingList] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const HOSPITAL = {
+    name: "Raju Hospital",
+    address: "Hospital Street, Your City",
+    phone: "+91 00000 00000",
+    email: "info@rajuhospital.com",
+  };
 
   const fetchInventory = async () => {
     const res = await fetch("/api/pharma-inventory");
@@ -292,21 +300,219 @@ export default function PharmaBillsPage() {
                   <th className="px-3 py-2 text-left border-b">Total</th>
                   <th className="px-3 py-2 text-left border-b">Items</th>
                   <th className="px-3 py-2 text-left border-b">Date</th>
+                  <th className="px-3 py-2 text-left border-b">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {bills.map((b) => (
-                  <tr key={b._id} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 border-b">{b.patientName}</td>
-                    <td className="px-3 py-2 border-b">{b.patientPhone}</td>
-                    <td className="px-3 py-2 border-b">₹{b.total}</td>
-                    <td className="px-3 py-2 border-b">
-                      {(b.items || []).length}
-                    </td>
-                    <td className="px-3 py-2 border-b">
-                      {b.createdAt ? new Date(b.createdAt).toLocaleString() : "-"}
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={b._id} className="hover:bg-slate-50">
+                      <td className="px-3 py-2 border-b">{b.patientName}</td>
+                      <td className="px-3 py-2 border-b">{b.patientPhone}</td>
+                      <td className="px-3 py-2 border-b">₹{b.total}</td>
+                      <td className="px-3 py-2 border-b">{(b.items || []).length}</td>
+                      <td className="px-3 py-2 border-b">
+                        {b.createdAt ? new Date(b.createdAt).toLocaleString() : "-"}
+                      </td>
+                      <td className="px-3 py-2 border-b">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedBillId((prev) => (prev === b._id ? null : b._id))
+                            }
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            {expandedBillId === b._id ? "Hide" : "View"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const items = b.items || [];
+                              const win = window.open("", "_blank");
+                              if (!win) return;
+
+                              const escapeHtml = (s) =>
+                                String(s ?? "")
+                                  .replace(/&/g, "&amp;")
+                                  .replace(/</g, "&lt;")
+                                  .replace(/>/g, "&gt;");
+
+                              const itemsHtml = items
+                                .map(
+                                  (it) => `
+                                  <tr>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(
+                                      it.name
+                                    )}</td>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(
+                                      it.batchNumber
+                                    )}</td>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">${escapeHtml(
+                                      it.quantity
+                                    )} ${escapeHtml(it.unit || "")}</td>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">₹${escapeHtml(
+                                      it.unitPrice
+                                    )}</td>
+                                    <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">₹${escapeHtml(
+                                      it.lineTotal
+                                    )}</td>
+                                  </tr>
+                                `
+                                )
+                                .join("");
+
+                              win.document.write(`
+                                <html>
+                                  <head>
+                                    <title>Pharma Bill</title>
+                                    <meta charset="utf-8" />
+                                  </head>
+                                  <body style="font-family: Arial, sans-serif; padding: 20px; color: #111827;">
+                                    <div style="display:flex; justify-content:space-between; gap:16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 16px;">
+                                      <div>
+                                        <h2 style="margin:0;">${escapeHtml(HOSPITAL.name)}</h2>
+                                        <div style="font-size: 12px; margin-top: 4px;">${escapeHtml(HOSPITAL.address)}</div>
+                                        <div style="font-size: 12px; margin-top: 4px;">Phone: ${escapeHtml(HOSPITAL.phone)} | ${escapeHtml(
+                                          HOSPITAL.email
+                                        )}</div>
+                                      </div>
+                                      <div style="text-align:right;">
+                                        <div style="font-size: 12px;">Bill ID: ${escapeHtml(b._id)}</div>
+                                        <div style="font-size: 12px; margin-top: 4px;">Date: ${
+                                          b.createdAt
+                                            ? escapeHtml(new Date(b.createdAt).toLocaleString())
+                                            : "-"
+                                        }</div>
+                                      </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 16px;">
+                                      <h3 style="margin:0 0 8px 0;">Patient Details</h3>
+                                      <div style="font-size: 13px; line-height: 1.6;">
+                                        <div><b>Name:</b> ${escapeHtml(b.patientName)}</div>
+                                        <div><b>Phone:</b> ${escapeHtml(b.patientPhone)}</div>
+                                      </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 16px;">
+                                      <h3 style="margin:0 0 8px 0;">Billing Details</h3>
+                                      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                        <thead>
+                                          <tr>
+                                            <th style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;">Medicine</th>
+                                            <th style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;">Batch</th>
+                                            <th style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">Qty</th>
+                                            <th style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">Unit Price</th>
+                                            <th style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">Line Total</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          ${itemsHtml}
+                                        </tbody>
+                                      </table>
+                                      <div style="margin-top: 12px; display:flex; justify-content:flex-end;">
+                                        <div style="border:1px solid #e5e7eb; padding:10px 14px; border-radius:10px;">
+                                          <div style="font-size:12px; color:#4b5563;">Grand Total</div>
+                                          <div style="font-size:18px; font-weight:bold;">₹${escapeHtml(b.total)}</div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div style="margin-top: 18px; font-size: 12px; color:#6b7280; text-align:center;">
+                                      Thank you for your purchase.
+                                    </div>
+                                  </body>
+                                </html>
+                              `);
+
+                              win.document.close();
+                              win.focus();
+                              win.print();
+                            }}
+                            className="text-green-700 hover:underline text-sm"
+                          >
+                            Print
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {expandedBillId === b._id && (
+                      <tr>
+                        <td colSpan={6} className="p-0 border-b">
+                          <div className="p-4 sm:p-6 bg-slate-50">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+                              <div>
+                                <div className="text-lg font-bold text-slate-800">{HOSPITAL.name}</div>
+                                <div className="text-sm text-slate-600">{HOSPITAL.address}</div>
+                                <div className="text-sm text-slate-600">
+                                  Phone: {HOSPITAL.phone} | {HOSPITAL.email}
+                                </div>
+                              </div>
+                              <div className="text-sm text-slate-600 md:text-right">
+                                <div>Bill ID: {b._id}</div>
+                                <div className="mt-1">
+                                  {b.createdAt ? new Date(b.createdAt).toLocaleString() : "-"}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                                <div className="font-semibold text-slate-800 mb-2">Patient Details</div>
+                                <div className="text-sm text-slate-700">
+                                  <div><b>Name:</b> {b.patientName}</div>
+                                  <div><b>Phone:</b> {b.patientPhone}</div>
+                                  {b.patientAge != null && <div><b>Age:</b> {b.patientAge}</div>}
+                                  {b.patientGender && <div><b>Gender:</b> {b.patientGender}</div>}
+                                  {b.patientAddress && <div><b>Address:</b> {b.patientAddress}</div>}
+                                </div>
+                              </div>
+
+                              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                                <div className="font-semibold text-slate-800 mb-2">Billing Summary</div>
+                                <div className="text-sm text-slate-700 space-y-2">
+                                  <div><b>Items:</b> {(b.items || []).length}</div>
+                                  <div><b>Subtotal:</b> ₹{b.subtotal ?? b.total}</div>
+                                  <div className="pt-2 border-t border-slate-200">
+                                    <b>Total:</b> <span className="text-lg font-bold text-slate-900">₹{b.total}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto">
+                              <table className="min-w-full text-sm">
+                                <thead className="bg-slate-100">
+                                  <tr>
+                                    <th className="px-3 py-2 text-left border-b">Medicine</th>
+                                    <th className="px-3 py-2 text-left border-b">Batch</th>
+                                    <th className="px-3 py-2 text-right border-b">Qty</th>
+                                    <th className="px-3 py-2 text-right border-b">Unit Price</th>
+                                    <th className="px-3 py-2 text-right border-b">Line Total</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {(b.items || []).map((it, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-50">
+                                      <td className="px-3 py-2 border-b">{it.name || "-"}</td>
+                                      <td className="px-3 py-2 border-b">{it.batchNumber || "-"}</td>
+                                      <td className="px-3 py-2 border-b text-right">
+                                        {it.quantity ?? 0} {it.unit || ""}
+                                      </td>
+                                      <td className="px-3 py-2 border-b text-right">₹{it.unitPrice ?? 0}</td>
+                                      <td className="px-3 py-2 border-b text-right">₹{it.lineTotal ?? 0}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 ))}
               </tbody>
             </table>
