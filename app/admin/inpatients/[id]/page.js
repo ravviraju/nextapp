@@ -84,8 +84,9 @@ export default function InpatientDetail() {
         <title>{admission.patientName} | Inpatient Details</title>
       </Head>
       
-      <div className="p-8 max-w-5xl mx-auto animate-in fade-in print:p-0 print:m-0 print:max-w-none">
-        <div className="flex justify-between items-center mb-6 print:hidden">
+      {/* --- STANDARD SCREEN USER INTERFACE (HIDDEN ON PRINT) --- */}
+      <div className="p-8 max-w-5xl mx-auto animate-in fade-in print:hidden">
+        <div className="flex justify-between items-center mb-6">
           <Link href="/admin/inpatients" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
             ← Back to All Admissions
           </Link>
@@ -102,7 +103,7 @@ export default function InpatientDetail() {
           )}
         </div>
         
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 relative overflow-hidden print:shadow-none print:border-none print:p-0 print:mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8">
             <span className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
               admission.status === 'admitted' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
@@ -140,7 +141,7 @@ export default function InpatientDetail() {
           </div>
           
           {admission.status === "admitted" && (
-            <div className="flex gap-3 mt-6 print:hidden">
+            <div className="flex gap-3 mt-6">
               <button onClick={() => setShowItemModal(true)} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition">
                 + Add Test or Medicine
               </button>
@@ -151,8 +152,8 @@ export default function InpatientDetail() {
           )}
         </div>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-4 px-2 print:text-lg">Itemized Billing</h2>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none text-black print:border-gray-300">
+        <h2 className="text-xl font-bold text-gray-800 mb-4 px-2">Itemized Billing</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -195,28 +196,15 @@ export default function InpatientDetail() {
                 </tr>
               )}
             </tbody>
-            <tfoot className="bg-gray-900 border-t border-gray-200 print:bg-white print:border-t-2 print:border-black">
+            <tfoot className="bg-gray-900 border-t border-gray-200">
               <tr>
-                <td colSpan="5" className="p-4 pl-6 text-right font-bold text-gray-200 text-lg print:text-black">Total Due</td>
-                <td className="p-4 pr-6 text-right font-bold text-emerald-400 text-xl tracking-tight print:text-black">₹{admission.totalBill?.toLocaleString()}</td>
+                <td colSpan="5" className="p-4 pl-6 text-right font-bold text-gray-200 text-lg">Total Due</td>
+                <td className="p-4 pr-6 text-right font-bold text-emerald-400 text-xl tracking-tight">₹{admission.totalBill?.toLocaleString()}</td>
               </tr>
             </tfoot>
           </table>
         </div>
         
-        {/* Print only footer */}
-        <div className="hidden print:block mt-24 text-center text-sm text-gray-500">
-          <div className="flex justify-between items-end border-t border-gray-400 pt-8 px-8">
-             <div>
-               <p className="font-bold text-gray-800">Authorized Signatory</p>
-               <p className="mt-1 text-xs">Hospital Administration</p>
-             </div>
-             <div>
-                <p className="text-xs">Generated on {new Date().toLocaleString()}</p>
-             </div>
-          </div>
-        </div>
-
         {/* Add Item Modal */}
         {showItemModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
@@ -264,6 +252,103 @@ export default function InpatientDetail() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* --- DEDICATED PRINT UI (HIDDEN ON SCREEN) --- */}
+      <div className="hidden print:block p-8 max-w-4xl mx-auto font-sans text-black bg-white">
+        {/* Print Header */}
+        <div className="text-center border-b-2 border-black pb-6 mb-6">
+          <h1 className="text-3xl font-black uppercase tracking-widest">Hospital Admin</h1>
+          <p className="text-sm mt-1 text-gray-600 font-bold tracking-widest">IN-PATIENT DISCHARGE SUMMARY & INVOICE</p>
+        </div>
+
+        {/* Patient Details Grid */}
+        <div className="grid grid-cols-2 gap-8 mb-8 text-sm">
+           <div>
+              <p className="mb-1"><span className="font-bold inline-block w-24">Patient Name:</span> <span className="uppercase">{admission.patientName}</span></p>
+              <p className="mb-1"><span className="font-bold inline-block w-24">Age & Gender:</span> {admission.patientAge} Yrs / {admission.patientGender}</p>
+              <p className="mb-1"><span className="font-bold inline-block w-24">Contact No:</span> {admission.patientPhone}</p>
+              <p className="mb-1"><span className="font-bold inline-block w-24">Address:</span> {admission.address}</p>
+           </div>
+           <div>
+              <p className="mb-1"><span className="font-bold inline-block w-28">Admission No:</span> IP-{admission._id.slice(-6).toUpperCase()}</p>
+              <p className="mb-1"><span className="font-bold inline-block w-28">Admitted On:</span> {new Date(admission.admissionDate).toLocaleString()}</p>
+              {admission.dischargeDate && (
+                <p className="mb-1"><span className="font-bold inline-block w-28">Discharged On:</span> {new Date(admission.dischargeDate).toLocaleString()}</p>
+              )}
+              <p className="mb-1"><span className="font-bold inline-block w-28">Ward / Bed:</span> {admission.bed ? `${admission.bed.wardName} (#${admission.bed.bedNumber})` : 'N/A'}</p>
+           </div>
+        </div>
+
+        {/* Billed Items Table */}
+        <div className="mb-8">
+           <h2 className="font-bold text-lg mb-2 uppercase border-b border-black pb-1 tracking-wider">Particulars Billed</h2>
+           <table className="w-full text-sm text-left border-collapse">
+              <thead>
+                <tr className="border-b-2 border-gray-400">
+                  <th className="py-2 w-1/6">Date</th>
+                  <th className="py-2 w-1/2">Description</th>
+                  <th className="py-2 w-1/12 text-center">Qty</th>
+                  <th className="py-2 w-1/6 text-right">Rate</th>
+                  <th className="py-2 w-1/6 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-300">
+                {admission.charges?.map((charge, i) => (
+                  <tr key={i}>
+                    <td className="py-3 text-gray-700">{new Date(charge.date).toLocaleDateString()}</td>
+                    <td className="py-3 font-medium">{charge.description}</td>
+                    <td className="py-3 text-center">{charge.quantity}</td>
+                    <td className="py-3 text-right">₹{charge.unitPrice}</td>
+                    <td className="py-3 text-right font-bold">₹{charge.amount}</td>
+                  </tr>
+                ))}
+                {admission.dischargeDate && (
+                  <tr>
+                    <td className="py-3 text-gray-700">{new Date(admission.dischargeDate).toLocaleDateString()}</td>
+                    <td className="py-3 font-medium">Room Charges ({admission.bed?.wardName})</td>
+                    <td className="py-3 text-center">-</td>
+                    <td className="py-3 text-right">₹{admission.bed?.dailyRate}/day</td>
+                    <td className="py-3 text-right font-bold">₹{admission.roomCharges}</td>
+                  </tr>
+                )}
+                {(!admission.charges || admission.charges.length === 0) && !admission.dischargeDate && (
+                  <tr>
+                    <td colSpan="5" className="py-6 text-center italic text-gray-500">No items billed.</td>
+                  </tr>
+                )}
+              </tbody>
+           </table>
+        </div>
+
+        {/* Totals */}
+        <div className="flex justify-end mb-16">
+          <div className="w-1/2 border-t-2 border-black pt-2">
+             <div className="flex justify-between font-black text-xl mb-1">
+                <span>TOTAL AMOUNT DUE:</span>
+                <span>₹{admission.totalBill?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+             </div>
+             <p className="text-right text-xs italic text-gray-600">(Inclusive of all applicable taxes)</p>
+          </div>
+        </div>
+
+        {/* Signatures */}
+        <div className="flex justify-between items-end pt-12 text-center">
+           <div>
+             <div className="w-48 border-b-2 border-dashed border-gray-400 mb-2"></div>
+             <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Patient / Relative Signature</p>
+           </div>
+           <div>
+             <div className="w-48 border-b-2 border-dashed border-gray-400 mb-2"></div>
+             <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Authorized Signatory</p>
+             <p className="text-xs font-medium text-gray-400">Hospital Administration</p>
+           </div>
+        </div>
+        
+        {/* Print Timestamp */}
+        <div className="mt-12 text-center text-[10px] text-gray-400 uppercase tracking-widest">
+          Document natively generated on {new Date().toLocaleString()}
+        </div>
       </div>
     </>
   );
