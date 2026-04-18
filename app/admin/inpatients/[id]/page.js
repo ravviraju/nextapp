@@ -84,12 +84,25 @@ export default function InpatientDetail() {
         <title>{admission.patientName} | Inpatient Details</title>
       </Head>
       
-      <div className="p-8 max-w-5xl mx-auto animate-in fade-in">
-        <Link href="/admin/inpatients" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-6 font-medium">
-          ← Back to All Admissions
-        </Link>
+      <div className="p-8 max-w-5xl mx-auto animate-in fade-in print:p-0 print:m-0 print:max-w-none">
+        <div className="flex justify-between items-center mb-6 print:hidden">
+          <Link href="/admin/inpatients" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+            ← Back to All Admissions
+          </Link>
+          {admission.status === "discharged" && (
+            <button 
+              onClick={() => window.print()} 
+              className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition flex items-center gap-2 shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+              </svg>
+              Print Discharge Summary
+            </button>
+          )}
+        </div>
         
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 relative overflow-hidden print:shadow-none print:border-none print:p-0 print:mb-6">
           <div className="absolute top-0 right-0 p-8">
             <span className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
               admission.status === 'admitted' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
@@ -127,7 +140,7 @@ export default function InpatientDetail() {
           </div>
           
           {admission.status === "admitted" && (
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-6 print:hidden">
               <button onClick={() => setShowItemModal(true)} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition">
                 + Add Test or Medicine
               </button>
@@ -138,8 +151,8 @@ export default function InpatientDetail() {
           )}
         </div>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-4 px-2">Itemized Billing</h2>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <h2 className="text-xl font-bold text-gray-800 mb-4 px-2 print:text-lg">Itemized Billing</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none text-black print:border-gray-300">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -182,13 +195,26 @@ export default function InpatientDetail() {
                 </tr>
               )}
             </tbody>
-            <tfoot className="bg-gray-900 border-t border-gray-200">
+            <tfoot className="bg-gray-900 border-t border-gray-200 print:bg-white print:border-t-2 print:border-black">
               <tr>
-                <td colSpan="5" className="p-4 pl-6 text-right font-bold text-gray-200 text-lg">Total Due</td>
-                <td className="p-4 pr-6 text-right font-bold text-emerald-400 text-xl tracking-tight">₹{admission.totalBill?.toLocaleString()}</td>
+                <td colSpan="5" className="p-4 pl-6 text-right font-bold text-gray-200 text-lg print:text-black">Total Due</td>
+                <td className="p-4 pr-6 text-right font-bold text-emerald-400 text-xl tracking-tight print:text-black">₹{admission.totalBill?.toLocaleString()}</td>
               </tr>
             </tfoot>
           </table>
+        </div>
+        
+        {/* Print only footer */}
+        <div className="hidden print:block mt-24 text-center text-sm text-gray-500">
+          <div className="flex justify-between items-end border-t border-gray-400 pt-8 px-8">
+             <div>
+               <p className="font-bold text-gray-800">Authorized Signatory</p>
+               <p className="mt-1 text-xs">Hospital Administration</p>
+             </div>
+             <div>
+                <p className="text-xs">Generated on {new Date().toLocaleString()}</p>
+             </div>
+          </div>
         </div>
 
         {/* Add Item Modal */}
