@@ -93,7 +93,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Tests Revenue */}
+          {/* Pharma Revenue */}
           <div className="bg-white p-6 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 border-l-4 border-l-pink-500 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] group">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider group-hover:text-pink-500 transition-colors">Tests Revenue</h2>
@@ -104,7 +104,7 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="mt-4 text-3xl font-extrabold text-gray-800 tracking-tight">
-              ₹{stats?.testsRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+              ₹{stats?.pharmaRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
             </p>
           </div>
 
