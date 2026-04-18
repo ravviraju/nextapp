@@ -75,7 +75,7 @@ export default function AdminLayout({ children }) {
           </div>
           <div>
             <div className="text-sm font-black text-white uppercase tracking-widest">
-              Core Desk
+              Hospital Desk
             </div>
             <div className="text-[10px] text-indigo-300 uppercase tracking-widest font-semibold mt-0.5">
               Secure Operations
@@ -105,7 +105,6 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/pharma-bills" label="Pharmacy Billing" currentPath={pathname} />
 
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-2">Tools</div>
-          <NavItem href="/admin/riskassessment" label="Risk Assessment" currentPath={pathname} />
           <NavItem href="/admin/aboutus" label="Website Identity" currentPath={pathname} />
         </nav>
 
