@@ -96,7 +96,7 @@ export default function Dashboard() {
           {/* Pharma Revenue */}
           <div className="bg-white p-6 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 border-l-4 border-l-pink-500 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] group">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider group-hover:text-pink-500 transition-colors">Tests Revenue</h2>
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider group-hover:text-pink-500 transition-colors">Pharma Revenue</h2>
               <div className="p-2 bg-pink-50 rounded-lg text-pink-500">
                 <svg xmlns="http://www.w3.org/-2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
