@@ -23,10 +23,30 @@ export async function GET() {
         },
       },
       { $unwind: { path: "$doctor", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
       { $sort: { "doctor.name": 1, tokenNumber: 1, time: 1 } }
     ]).toArray();
 
-    return NextResponse.json(appointments);
+    const formattedAppointments = appointments.map(app => {
+      // If patientName is empty (e.g. booked via public website), fallback to user's registered name
+      if (!app.patientName && app.user) {
+        app.patientName = app.user.name || "Web User";
+      }
+      if (!app.patientPhone && app.user) {
+         app.patientPhone = app.user.phone || app.user.email || "Registered Online";
+      }
+      return app;
+    });
+
+    return NextResponse.json(formattedAppointments);
   } catch (error) {
     console.error("Live Queue GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
