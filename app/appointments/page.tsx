@@ -106,6 +106,7 @@ export default function MyAppointmentsPage() {
                   <th className="px-4 py-3 text-left border-b">Specialization</th>
                   <th className="px-4 py-3 text-left border-b">Date</th>
                   <th className="px-4 py-3 text-left border-b">Time</th>
+                  <th className="px-4 py-3 text-left border-b font-bold text-blue-600">Token</th>
                   <th className="px-4 py-3 text-left border-b">Status</th>
                 </tr>
               </thead>
@@ -120,6 +121,15 @@ export default function MyAppointmentsPage() {
                     </td>
                     <td className="px-4 py-3 border-b text-slate-600">{a.date}</td>
                     <td className="px-4 py-3 border-b text-slate-600">{a.time}</td>
+                    <td className="px-4 py-3 border-b">
+                      {a.tokenNumber ? (
+                        <div className="inline-flex items-center justify-center font-bold text-sm bg-blue-100 text-blue-800 h-8 w-10 rounded-lg">
+                          #{a.tokenNumber}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 border-b">
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-700 capitalize">
                         {a.status || "scheduled"}
@@ -156,6 +166,14 @@ export default function MyAppointmentsPage() {
                   <div className="text-slate-800 text-right">{a.date}</div>
                   <div className="text-slate-500">Time</div>
                   <div className="text-slate-800 text-right">{a.time}</div>
+                  <div className="text-slate-500 font-bold">Token Number</div>
+                  <div className="text-right">
+                    {a.tokenNumber ? (
+                      <span className="font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded-md">#{a.tokenNumber}</span>
+                    ) : (
+                      "-"
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

@@ -101,6 +101,7 @@ export default function AdminLayout({ children }) {
 
         <nav className="flex-1 px-3 py-4 space-y-1 text-sm">
           <NavItem href="/admin/dashboard" label="Dashboard" />
+          <NavItem href="/admin/live-queue" label="Live Token Queue" />
           <NavItem href="/admin/users" label="Users" />
           <NavItem href="/admin/specializations" label="Doctor Specializations" />
           <NavItem href="/admin/doctors" label="Doctors" />
