@@ -15,6 +15,33 @@ export default function AdminAppointmentsPage() {
 
   const [saving, setSaving] = useState(false);
   const [listLoading, setListLoading] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  useEffect(() => {
+    if (doctorId && date) {
+      const fetchSlots = async () => {
+        setLoadingSlots(true);
+        try {
+          const res = await fetch(`/api/doctors/slots?doctorId=${doctorId}&date=${date}`);
+          const data = await res.json();
+          if (data.success) {
+            setAvailableSlots(data.slots || []);
+            // Only reset time if current time is not in available slots
+            setTime(prev => (data.slots || []).includes(prev) ? prev : "");
+          }
+        } catch (err) {
+          console.error("Error fetching slots", err);
+        } finally {
+          setLoadingSlots(false);
+        }
+      };
+      fetchSlots();
+    } else {
+      setAvailableSlots([]);
+      setTime("");
+    }
+  }, [doctorId, date]);
 
   const fetchDoctors = async () => {
     try {
@@ -125,12 +152,24 @@ export default function AdminAppointmentsPage() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-          <input
-            type="time"
-            className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-          />
+          <div className="relative">
+            <select
+              className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              disabled={!doctorId || !date || loadingSlots}
+            >
+              <option value="">{loadingSlots ? "Loading slots..." : "Select time"}</option>
+              {availableSlots.map(slot => (
+                <option key={slot} value={slot}>{slot}</option>
+              ))}
+            </select>
+            {!loadingSlots && doctorId && date && availableSlots.length === 0 && (
+              <span className="absolute -bottom-5 left-1 text-xs text-red-500 font-medium tracking-tight">
+                No slots available
+              </span>
+            )}
+          </div>
           <input
             type="text"
             placeholder="Patient name (optional)"

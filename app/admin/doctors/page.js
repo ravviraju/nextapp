@@ -17,6 +17,18 @@ export default function AdminDoctorsPage() {
   const [imageFile, setImageFile] = useState(null);
 
   const [fee, setFee] = useState("");
+  
+  const [consultationDuration, setConsultationDuration] = useState("15");
+  const [schedule, setSchedule] = useState([
+    { day: "Monday", slots: [] },
+    { day: "Tuesday", slots: [] },
+    { day: "Wednesday", slots: [] },
+    { day: "Thursday", slots: [] },
+    { day: "Friday", slots: [] },
+    { day: "Saturday", slots: [] },
+    { day: "Sunday", slots: [] }
+  ]);
+  const [leaves, setLeaves] = useState([]);
 
   const [loadingSave, setLoadingSave] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
@@ -72,6 +84,17 @@ export default function AdminDoctorsPage() {
     setNotes("");
     setImageUrl("");
     setImageFile(null);
+    setConsultationDuration("15");
+    setSchedule([
+      { day: "Monday", slots: [] },
+      { day: "Tuesday", slots: [] },
+      { day: "Wednesday", slots: [] },
+      { day: "Thursday", slots: [] },
+      { day: "Friday", slots: [] },
+      { day: "Saturday", slots: [] },
+      { day: "Sunday", slots: [] }
+    ]);
+    setLeaves([]);
   };
 
   const resizeImage = (file, maxWidth = 300, maxHeight = 300, quality = 0.85) => {
@@ -166,6 +189,9 @@ export default function AdminDoctorsPage() {
         contactPhone,
         notes,
         imageUrl: finalImageUrl || undefined,
+        consultationDuration: parseInt(consultationDuration, 10) || 15,
+        schedule: schedule.filter(s => s.slots.length > 0),
+        leaves,
       };
 
       let res;
@@ -217,6 +243,16 @@ export default function AdminDoctorsPage() {
     setNotes(doctor.notes || "");
     setImageUrl(doctor.imageUrl || "");
     setImageFile(null);
+    setConsultationDuration(doctor.consultationDuration ? String(doctor.consultationDuration) : "15");
+    
+    // Merge existing schedule with defaults to always show all days
+    const defaultDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const loadedSchedule = defaultDays.map(day => {
+      const existing = (doctor.schedule || []).find(s => s.day === day);
+      return existing || { day, slots: [] };
+    });
+    setSchedule(loadedSchedule);
+    setLeaves(doctor.leaves || []);
   };
 
   const handleDelete = async (id) => {
@@ -336,6 +372,127 @@ export default function AdminDoctorsPage() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
+
+          <div className="md:col-span-2 border-t pt-4 mt-2">
+            <h3 className="text-lg font-semibold mb-2">Schedule & Availability</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Consultation Duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  min="5"
+                  step="5"
+                  className="border rounded-lg p-2 w-32 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={consultationDuration}
+                  onChange={(e) => setConsultationDuration(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Weekly Schedule
+                </label>
+                <div className="space-y-4">
+                  {schedule.map((dayItem, dIndex) => (
+                    <div key={dayItem.day} className="flex flex-col sm:flex-row sm:items-start gap-2 bg-gray-50 p-3 rounded-lg border">
+                      <div className="w-32 font-medium text-gray-800 pt-2">{dayItem.day}</div>
+                      <div className="flex-1 space-y-2">
+                        {dayItem.slots.map((slot, sIndex) => (
+                          <div key={sIndex} className="flex items-center gap-2">
+                            <input
+                              type="time"
+                              className="border rounded p-1 text-sm"
+                              value={slot.start}
+                              onChange={(e) => {
+                                const newSched = [...schedule];
+                                newSched[dIndex].slots[sIndex].start = e.target.value;
+                                setSchedule(newSched);
+                              }}
+                            />
+                            <span>to</span>
+                            <input
+                              type="time"
+                              className="border rounded p-1 text-sm"
+                              value={slot.end}
+                              onChange={(e) => {
+                                const newSched = [...schedule];
+                                newSched[dIndex].slots[sIndex].end = e.target.value;
+                                setSchedule(newSched);
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className="text-red-500 hover:text-red-700 font-bold px-2 py-1"
+                              onClick={() => {
+                                const newSched = [...schedule];
+                                newSched[dIndex].slots.splice(sIndex, 1);
+                                setSchedule(newSched);
+                              }}
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium mt-1"
+                          onClick={() => {
+                            const newSched = [...schedule];
+                            newSched[dIndex].slots.push({ start: "09:00", end: "17:00" });
+                            setSchedule(newSched);
+                          }}
+                        >
+                          + Add Time Slot
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Leaves (Unavailable Dates)
+                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {leaves.map((date, i) => (
+                    <div key={i} className="bg-red-50 text-red-700 border border-red-200 px-3 py-1 rounded-full flex items-center gap-2 text-sm">
+                      {date}
+                      <button
+                        type="button"
+                        className="font-bold hover:text-red-900"
+                        onClick={() => setLeaves(leaves.filter((_, index) => index !== i))}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    id="newLeaveDate"
+                    className="border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <button
+                    type="button"
+                    className="bg-gray-200 px-3 py-2 rounded-lg text-sm hover:bg-gray-300"
+                    onClick={() => {
+                      const input = document.getElementById("newLeaveDate");
+                      if (input.value && !leaves.includes(input.value)) {
+                        setLeaves([...leaves, input.value]);
+                        input.value = "";
+                      }
+                    }}
+                  >
+                    Add Leave
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex gap-2 mt-4">
           <button

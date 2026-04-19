@@ -14,6 +14,32 @@ export default function BookAppointmentPage() {
   const [loading, setLoading] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  useEffect(() => {
+    if (doctorId && date) {
+      const fetchSlots = async () => {
+        setLoadingSlots(true);
+        try {
+          const res = await fetch(`/api/doctors/slots?doctorId=${doctorId}&date=${date}`);
+          const data = await res.json();
+          if (data.success) {
+            setAvailableSlots(data.slots || []);
+            setTime(prev => (data.slots || []).includes(prev) ? prev : "");
+          }
+        } catch (err) {
+          console.error("Error fetching slots", err);
+        } finally {
+          setLoadingSlots(false);
+        }
+      };
+      fetchSlots();
+    } else {
+      setAvailableSlots([]);
+      setTime("");
+    }
+  }, [doctorId, date]);
 
   useEffect(() => {
     const loadDoctors = async () => {
@@ -142,12 +168,24 @@ export default function BookAppointmentPage() {
             <label className="block text-sm font-medium text-slate-700 mb-1">
               Time
             </label>
-            <input
-              type="time"
-              className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
+            <div className="relative">
+              <select
+                className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                disabled={!doctorId || !date || loadingSlots}
+              >
+                <option value="">{loadingSlots ? "Loading slots..." : "Select time"}</option>
+                {availableSlots.map(slot => (
+                  <option key={slot} value={slot}>{slot}</option>
+                ))}
+              </select>
+              {!loadingSlots && doctorId && date && availableSlots.length === 0 && (
+                <span className="absolute -bottom-5 left-1 text-xs text-red-500 font-medium tracking-tight">
+                  No slots available
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="sm:col-span-2">

@@ -27,6 +27,9 @@ export async function POST(req) {
       contactPhone,
       notes,
       imageUrl,
+      consultationDuration,
+      schedule,
+      leaves,
     } = body || {};
 
     if (!name || !specializationId) {
@@ -54,6 +57,9 @@ export async function POST(req) {
       contactPhone,
       notes,
       imageUrl,
+      consultationDuration,
+      schedule,
+      leaves,
     });
 
     return NextResponse.json({
