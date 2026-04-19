@@ -32,7 +32,7 @@ export async function GET() {
         }
       },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-      { $sort: { "doctor.name": 1, tokenNumber: 1, time: 1 } }
+      { $sort: { "doctor.name": 1, time: 1, tokenNumber: 1 } }
     ]).toArray();
 
     const formattedAppointments = appointments.map(app => {
