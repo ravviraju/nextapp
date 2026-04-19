@@ -94,6 +94,7 @@ export default function AdminLayout({ children }) {
           <NavItem href="/admin/users" label="System Users" currentPath={pathname} />
 
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-2">Patient Hub</div>
+          <NavItem href="/admin/patients" label="Outpatient Directory" currentPath={pathname} />
           <NavItem href="/admin/appointments" label="Appointments History" currentPath={pathname} />
           <NavItem href="/admin/beds" label="Beds Management" currentPath={pathname} />
           <NavItem href="/admin/inpatients" label="In-Patient Workflow" currentPath={pathname} />
