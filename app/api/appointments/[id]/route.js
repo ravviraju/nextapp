@@ -3,11 +3,14 @@ import { updateAppointmentStatus, rescheduleAppointment } from "@/lib/models/App
 
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    let { id } = params || {};
+    const body = await req.json();
+    if (!id && body && body.id) {
+      id = body.id;
+    }
     if (!id) {
       return NextResponse.json({ success: false, message: "Appointment ID missing" }, { status: 400 });
     }
-    const body = await req.json();
     const { action, doctorId, date, time } = body || {};
     if (!action) {
       return NextResponse.json({ success: false, message: "Action is required" }, { status: 400 });
