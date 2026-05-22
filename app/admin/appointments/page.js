@@ -424,36 +424,40 @@ export default function AdminAppointmentsPage() {
                       ₹{a.fee || 0}
                     </td>
                     <td className="px-4 py-2 border-b text-center">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => {
-                            setRescheduleAppointment(a);
-                            setRescheduleDate(a.date);
-                          }}
-                          disabled={a.status === "cancelled"}
-                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Reschedule"
-                        >
-                          Reschedule
-                        </button>
-                        <button
-                          onClick={() => handleCancel(a._id)}
-                          disabled={a.status === "cancelled"}
-                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-red-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Cancel"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => setBillAppointment(a)}
-                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-green-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition"
-                          title="Print Bill"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
-                          Bill
-                        </button>
-                      </div>
-                    </td>
+  <div className="flex justify-center gap-2">
+    {!( ["completed","cancelled","in-progress"].includes(a.status) ) && (
+      <>
+        <button
+          onClick={() => {
+            setRescheduleAppointment(a);
+            setRescheduleDate(a.date);
+          }}
+          disabled={a.status === "cancelled"}
+          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Reschedule"
+        >
+          Reschedule
+        </button>
+        <button
+          onClick={() => handleCancel(a._id)}
+          disabled={a.status === "cancelled"}
+          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-red-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Cancel"
+        >
+          Cancel
+        </button>
+      </>
+    )}
+    <button
+      onClick={() => setBillAppointment(a)}
+      className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-green-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition"
+      title="Print Bill"
+    >
+      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
+      Bill
+    </button>
+  </div>
+</td>
                   </tr>
                 ))}
               </tbody>
