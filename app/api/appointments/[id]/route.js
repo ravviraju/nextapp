@@ -3,10 +3,19 @@ import { updateAppointmentStatus, rescheduleAppointment } from "@/lib/models/App
 
 export async function PUT(req, { params }) {
   try {
+    // Extract appointment ID from route params, request body, or URL path
     let { id } = params || {};
     const body = await req.json();
-    if (!id && body?.id) {
-      id = body.id;
+    if (!id && (body.id || body.appointmentId)) {
+      id = body.id || body.appointmentId;
+    }
+    if (!id) {
+      // Fallback: extract last segment of URL path
+      try {
+        const urlPath = new URL(req.url, "http://localhost").pathname;
+        const parts = urlPath.split('/').filter(Boolean);
+        id = parts[parts.length - 1];
+      } catch (_) {}
     }
     if (!id) {
       return NextResponse.json({ success: false, message: "Appointment ID missing" }, { status: 400 });
