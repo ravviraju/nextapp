@@ -18,6 +18,8 @@ export default function AdminAppointmentsPage() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
+  const [billAppointment, setBillAppointment] = useState(null);
+
   useEffect(() => {
     if (doctorId && date) {
       const fetchSlots = async () => {
@@ -126,8 +128,74 @@ export default function AdminAppointmentsPage() {
     }
   };
 
+  const BillContent = ({ appointment }) => {
+    if (!appointment) return null;
+    return (
+      <div className="max-w-2xl mx-auto border-2 border-gray-800 p-8 rounded-lg bg-white text-black">
+        <div className="text-center mb-8 border-b-2 border-gray-800 pb-4">
+          <h1 className="text-3xl font-bold uppercase tracking-wider">City Health Clinic</h1>
+          <p className="text-gray-600 mt-2">123 Wellness Avenue, Medical District, City 10001</p>
+          <p className="text-gray-600">Phone: +1 234 567 8900 | Email: contact@cityhealth.com</p>
+        </div>
+        
+        <h2 className="text-2xl font-bold text-center mb-6">Payment Receipt</h2>
+        
+        <div className="grid grid-cols-2 gap-6 mb-8 text-sm">
+          <div>
+            <p><span className="font-semibold">Receipt No:</span> REC-{appointment._id.slice(-6).toUpperCase()}</p>
+            <p><span className="font-semibold">Date of Issue:</span> {new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="text-right">
+            <p><span className="font-semibold">Appointment Date:</span> {appointment.date}</p>
+            <p><span className="font-semibold">Time:</span> {appointment.time}</p>
+          </div>
+        </div>
+
+        <div className="border border-gray-300 rounded-lg p-5 mb-8 bg-gray-50">
+          <h3 className="font-bold text-lg mb-4 border-b border-gray-200 pb-2">Patient Details</h3>
+          <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+            <p><span className="font-semibold text-gray-600">Name:</span> {appointment.patientName || "Walk-in Patient"}</p>
+            <p><span className="font-semibold text-gray-600">Phone:</span> {appointment.patientPhone || "N/A"}</p>
+            <p><span className="font-semibold text-gray-600">Consulting Doctor:</span> {appointment.doctor?.name || "N/A"}</p>
+            <p><span className="font-semibold text-gray-600">Department:</span> {appointment.specialization?.name || "General"}</p>
+          </div>
+        </div>
+
+        <table className="w-full mb-8 border-collapse border border-gray-300">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 p-3 text-left">Description</th>
+              <th className="border border-gray-300 p-3 text-right">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 p-3">Doctor Consultation Fee</td>
+              <td className="border border-gray-300 p-3 text-right font-medium">{appointment.fee || 0}</td>
+            </tr>
+            <tr className="bg-gray-50">
+              <td className="border border-gray-300 p-3 text-right font-bold">Total Paid Amount:</td>
+              <td className="border border-gray-300 p-3 text-right text-lg font-bold">₹{appointment.fee || 0}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div className="mt-16 flex justify-between items-end">
+          <div>
+            <p className="text-sm text-gray-500 italic">This is a computer-generated receipt.</p>
+          </div>
+          <div className="text-center">
+            <div className="border-b border-gray-800 w-48 mb-2"></div>
+            <p className="font-semibold">Authorized Signatory</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6">
+    <>
+    <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6 print:hidden">
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-xl p-6 mb-8">
         <h2 className="text-2xl font-bold mb-4">Add Appointment</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,6 +305,8 @@ export default function AdminAppointmentsPage() {
                   <th className="px-4 py-2 border-b text-left">Patient</th>
                   <th className="px-4 py-2 border-b text-left">Phone</th>
                   <th className="px-4 py-2 border-b text-left">Status</th>
+                  <th className="px-4 py-2 border-b text-left">Paid Amt</th>
+                  <th className="px-4 py-2 border-b text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -259,6 +329,19 @@ export default function AdminAppointmentsPage() {
                     <td className="px-4 py-2 border-b">
                       {a.status || "scheduled"}
                     </td>
+                    <td className="px-4 py-2 border-b font-medium text-green-600">
+                      ₹{a.fee || 0}
+                    </td>
+                    <td className="px-4 py-2 border-b text-center">
+                      <button
+                        onClick={() => setBillAppointment(a)}
+                        className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm transition"
+                        title="Print Bill"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
+                        Bill
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -267,6 +350,49 @@ export default function AdminAppointmentsPage() {
         )}
       </div>
     </div>
+
+    {/* Bill Preview Modal (Screen only) */}
+    {billAppointment && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 print:hidden backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in duration-200">
+          <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+            <h2 className="text-xl font-bold text-gray-800">Bill Preview</h2>
+            <button 
+              onClick={() => setBillAppointment(null)} 
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div className="p-6 overflow-y-auto bg-gray-100 flex-1">
+             <BillContent appointment={billAppointment} />
+          </div>
+          <div className="p-4 border-t bg-white flex justify-end gap-3 rounded-b-2xl">
+            <button 
+              onClick={() => setBillAppointment(null)} 
+              className="px-5 py-2 border border-gray-300 font-medium text-gray-700 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => window.print()} 
+              className="px-6 py-2 bg-blue-600 font-medium text-white rounded-xl shadow-sm hover:bg-blue-700 hover:shadow transition flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
+              Print Bill
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Actual Printable Bill (Hidden on screen, visible only on print) */}
+    {billAppointment && (
+      <div className="hidden print:block w-full bg-white text-black p-4">
+        <BillContent appointment={billAppointment} />
+      </div>
+    )}
+    </>
   );
 }
 

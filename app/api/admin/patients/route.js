@@ -20,6 +20,7 @@ export async function GET() {
           path: "$user",
           preserveNullAndEmptyArrays: true,
         },
+      },
       {
         $lookup: {
           from: "doctors",
