@@ -20,6 +20,14 @@ export default function AdminAppointmentsPage() {
 
   const [billAppointment, setBillAppointment] = useState(null);
 
+  // Reschedule state
+  const [rescheduleAppointment, setRescheduleAppointment] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
+  const [rescheduleSlots, setRescheduleSlots] = useState([]);
+  const [loadingRescheduleSlots, setLoadingRescheduleSlots] = useState(false);
+  const [savingReschedule, setSavingReschedule] = useState(false);
+
   useEffect(() => {
     if (doctorId && date) {
       const fetchSlots = async () => {
@@ -44,6 +52,30 @@ export default function AdminAppointmentsPage() {
       setTime("");
     }
   }, [doctorId, date]);
+
+  useEffect(() => {
+    if (rescheduleAppointment && rescheduleDate) {
+      const fetchSlots = async () => {
+        setLoadingRescheduleSlots(true);
+        try {
+          const res = await fetch(`/api/doctors/slots?doctorId=${rescheduleAppointment.doctorId}&date=${rescheduleDate}`);
+          const data = await res.json();
+          if (data.success) {
+            setRescheduleSlots(data.slots || []);
+            setRescheduleTime(prev => (data.slots || []).includes(prev) ? prev : "");
+          }
+        } catch (err) {
+          console.error("Error fetching reschedule slots", err);
+        } finally {
+          setLoadingRescheduleSlots(false);
+        }
+      };
+      fetchSlots();
+    } else {
+      setRescheduleSlots([]);
+      setRescheduleTime("");
+    }
+  }, [rescheduleAppointment, rescheduleDate]);
 
   const fetchDoctors = async () => {
     try {
@@ -125,6 +157,61 @@ export default function AdminAppointmentsPage() {
       alert("Error creating appointment");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCancel = async (id) => {
+    if (!confirm("Are you sure you want to cancel this appointment?")) return;
+    
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancel" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchAppointments();
+      } else {
+        alert(data.message || "Failed to cancel appointment");
+      }
+    } catch (err) {
+      console.error("Error cancelling appointment", err);
+      alert("Error cancelling appointment");
+    }
+  };
+
+  const handleRescheduleSubmit = async () => {
+    if (!rescheduleDate || !rescheduleTime) {
+      alert("Please select a new date and time");
+      return;
+    }
+
+    try {
+      setSavingReschedule(true);
+      const res = await fetch(`/api/appointments/${rescheduleAppointment._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "reschedule",
+          doctorId: rescheduleAppointment.doctorId,
+          date: rescheduleDate,
+          time: rescheduleTime
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Appointment rescheduled successfully");
+        setRescheduleAppointment(null);
+        fetchAppointments();
+      } else {
+        alert(data.message || "Failed to reschedule appointment");
+      }
+    } catch (err) {
+      console.error("Error rescheduling appointment", err);
+      alert("Error rescheduling appointment");
+    } finally {
+      setSavingReschedule(false);
     }
   };
 
@@ -327,20 +414,45 @@ export default function AdminAppointmentsPage() {
                       {a.patientPhone || "-"}
                     </td>
                     <td className="px-4 py-2 border-b">
-                      {a.status || "scheduled"}
+                      {a.status === "cancelled" ? (
+                        <span className="text-red-600 font-semibold">Cancelled</span>
+                      ) : (
+                        <span className="capitalize">{a.status || "scheduled"}</span>
+                      )}
                     </td>
                     <td className="px-4 py-2 border-b font-medium text-green-600">
                       ₹{a.fee || 0}
                     </td>
                     <td className="px-4 py-2 border-b text-center">
-                      <button
-                        onClick={() => setBillAppointment(a)}
-                        className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm transition"
-                        title="Print Bill"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
-                        Bill
-                      </button>
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setRescheduleAppointment(a);
+                            setRescheduleDate(a.date);
+                          }}
+                          disabled={a.status === "cancelled"}
+                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Reschedule"
+                        >
+                          Reschedule
+                        </button>
+                        <button
+                          onClick={() => handleCancel(a._id)}
+                          disabled={a.status === "cancelled"}
+                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-red-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Cancel"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => setBillAppointment(a)}
+                          className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-green-600 px-2 py-1 rounded-lg text-xs font-medium shadow-sm transition"
+                          title="Print Bill"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
+                          Bill
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -378,8 +490,76 @@ export default function AdminAppointmentsPage() {
               onClick={() => window.print()} 
               className="px-6 py-2 bg-blue-600 font-medium text-white rounded-xl shadow-sm hover:bg-blue-700 hover:shadow transition flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2-2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z" /></svg>
               Print Bill
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Reschedule Modal */}
+    {rescheduleAppointment && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 print:hidden backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col animate-in fade-in zoom-in duration-200">
+          <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
+            <h2 className="text-xl font-bold text-gray-800">Reschedule Appointment</h2>
+            <button 
+              onClick={() => setRescheduleAppointment(null)} 
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-gray-600 mb-4">
+              Rescheduling appointment for <strong>{rescheduleAppointment.patientName || "Patient"}</strong> with Dr. <strong>{rescheduleAppointment.doctor?.name}</strong>.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Date</label>
+                <input
+                  type="date"
+                  className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={rescheduleDate}
+                  onChange={(e) => setRescheduleDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Time</label>
+                <select
+                  className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+                  value={rescheduleTime}
+                  onChange={(e) => setRescheduleTime(e.target.value)}
+                  disabled={!rescheduleDate || loadingRescheduleSlots}
+                >
+                  <option value="">{loadingRescheduleSlots ? "Loading slots..." : "Select time"}</option>
+                  {rescheduleSlots.map(slot => (
+                    <option key={slot} value={slot}>{slot}</option>
+                  ))}
+                </select>
+                {!loadingRescheduleSlots && rescheduleDate && rescheduleSlots.length === 0 && (
+                  <p className="mt-1 text-xs text-red-500 font-medium tracking-tight">
+                    No slots available for this date.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+            <button 
+              onClick={() => setRescheduleAppointment(null)} 
+              disabled={savingReschedule}
+              className="px-5 py-2 border border-gray-300 font-medium text-gray-700 rounded-xl hover:bg-gray-100 transition disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleRescheduleSubmit} 
+              disabled={savingReschedule || !rescheduleDate || !rescheduleTime}
+              className="px-6 py-2 bg-blue-600 font-medium text-white rounded-xl shadow-sm hover:bg-blue-700 hover:shadow transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {savingReschedule ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </div>
