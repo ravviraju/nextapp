@@ -1,26 +1,50 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-export async function GET() {
+export async function GET(req) {
   try {
+    const { searchParams } = new URL(req.url);
+    const fromDate = searchParams.get("fromDate");
+    const toDate = searchParams.get("toDate");
+
+    let matchStage = null;
+    if (fromDate || toDate) {
+      const dateQuery = {};
+      if (fromDate) {
+        const start = new Date(fromDate);
+        start.setHours(0, 0, 0, 0);
+        dateQuery.$gte = start;
+      }
+      if (toDate) {
+        const end = new Date(toDate);
+        end.setHours(23, 59, 59, 999);
+        dateQuery.$lte = end;
+      }
+      matchStage = { $match: { createdAt: dateQuery } };
+    }
+
+    const buildPipeline = (baseStages) => {
+      return matchStage ? [matchStage, ...baseStages] : baseStages;
+    };
+
     const client = await clientPromise;
     const db = client.db();
 
-    const appointmentsAgg = await db.collection("appointments").aggregate([
-      { $group: { _id: null, total: { $sum: { $toDouble: "$fee" } } } }
-    ]).toArray();
+    const appointmentsAgg = await db.collection("appointments").aggregate(
+      buildPipeline([{ $group: { _id: null, total: { $sum: { $toDouble: "$fee" } } } }])
+    ).toArray();
 
-    const labBillsAgg = await db.collection("labBills").aggregate([
-      { $group: { _id: null, total: { $sum: { $toDouble: "$total" } } } }
-    ]).toArray();
+    const labBillsAgg = await db.collection("labBills").aggregate(
+      buildPipeline([{ $group: { _id: null, total: { $sum: { $toDouble: "$total" } } } }])
+    ).toArray();
 
-    const pharmaBillsAgg = await db.collection("pharmaBills").aggregate([
-      { $group: { _id: null, total: { $sum: { $toDouble: "$total" } } } }
-    ]).toArray();
+    const pharmaBillsAgg = await db.collection("pharmaBills").aggregate(
+      buildPipeline([{ $group: { _id: null, total: { $sum: { $toDouble: "$total" } } } }])
+    ).toArray();
 
-    const ipAgg = await db.collection("ip_admissions").aggregate([
-      { $group: { _id: null, total: { $sum: { $toDouble: "$totalBill" } } } }
-    ]).toArray();
+    const ipAgg = await db.collection("ip_admissions").aggregate(
+      buildPipeline([{ $group: { _id: null, total: { $sum: { $toDouble: "$totalBill" } } } }])
+    ).toArray();
 
     const apptsRevenue = appointmentsAgg.length > 0 ? appointmentsAgg[0].total : 0;
     const labRevenue = labBillsAgg.length > 0 ? labBillsAgg[0].total : 0;

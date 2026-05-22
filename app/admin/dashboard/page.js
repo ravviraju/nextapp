@@ -7,20 +7,29 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams();
+      if (fromDate) queryParams.append("fromDate", fromDate);
+      if (toDate) queryParams.append("toDate", toDate);
+      
+      const queryString = queryParams.toString();
+      const res = await fetch(`/api/admin-dashboard-stats${queryString ? `?${queryString}` : ""}`);
+      if (!res.ok) throw new Error("Failed to fetch dashboard stats");
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch("/api/admin-dashboard-stats");
-        if (!res.ok) throw new Error("Failed to fetch dashboard stats");
-        const data = await res.json();
-        setStats(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchStats();
   }, []);
 
@@ -50,15 +59,39 @@ export default function Dashboard() {
       </Head>
       
       <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 slide-in-from-bottom-4">
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-100">
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-100 gap-4">
           <div>
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
               Admin Dashboard
             </h1>
             <p className="text-gray-500 mt-2">Overview of financial and operational metrics</p>
           </div>
-          <div className="mt-4 md:mt-0 text-sm text-gray-400 bg-gray-50 px-4 py-2 rounded-full border border-gray-100 shadow-sm">
-            Live Revenue Tracking
+          <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-200">
+            <div className="flex items-center gap-2 px-2">
+              <span className="text-sm font-medium text-gray-500">From</span>
+              <input 
+                type="date" 
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="text-sm border-none bg-gray-50 rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-gray-700"
+              />
+            </div>
+            <div className="hidden sm:block w-px h-6 bg-gray-200"></div>
+            <div className="flex items-center gap-2 px-2">
+              <span className="text-sm font-medium text-gray-500">To</span>
+              <input 
+                type="date" 
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="text-sm border-none bg-gray-50 rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-emerald-500 outline-none text-gray-700"
+              />
+            </div>
+            <button 
+              onClick={fetchStats}
+              className="ml-2 bg-emerald-600 text-white px-4 py-1.5 rounded-xl text-sm font-semibold shadow-sm hover:bg-emerald-700 hover:shadow transition-all"
+            >
+              Filter
+            </button>
           </div>
         </header>
         
