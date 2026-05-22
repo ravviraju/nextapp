@@ -4,6 +4,11 @@ import { updateAppointmentStatus, rescheduleAppointment } from "@/lib/models/App
 export async function PUT(req, { params }) {
   try {
     let { id } = params || {};
+    const url = new URL(req.url);
+    const queryId = url.searchParams.get('id');
+    if (!id && queryId) {
+      id = queryId;
+    }
     const body = await req.json();
     if (!id && body && body.id) {
       id = body.id;
