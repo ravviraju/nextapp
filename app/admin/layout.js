@@ -107,7 +107,11 @@ export default function AdminLayout({ children }) {
 
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-2">Tools</div>
           <NavItem href="/admin/aboutus" label="Website Identity" currentPath={pathname} />
-        </nav>
+        <NavItem href="/admin/finance" label="Finance" currentPath={pathname} />
+          <NavItem href="/admin/finance/ledger" label="General Ledger" currentPath={pathname} />
+          <NavItem href="/admin/finance/income" label="Income/Expense" currentPath={pathname} />
+          <NavItem href="/admin/finance/profit-loss" label="Profit & Loss" currentPath={pathname} />
+          </nav>
 
         <div className="p-4 mt-auto">
           <div className="bg-slate-800/50 rounded-2xl p-2 border border-slate-700/50">
