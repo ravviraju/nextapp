@@ -20,6 +20,19 @@ export async function GET() {
           path: "$user",
           preserveNullAndEmptyArrays: true,
         },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "doctorId",
+          foreignField: "_id",
+          as: "doctor",
+        },
+      },
+      {
+        $unwind: {
+          path: "$doctor",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $project: {
@@ -41,6 +54,9 @@ export async function GET() {
             $cond: [{ $and: ["$user", "$user.email"] }, "$user.email", ""],
           },
           date: 1,
+          time: 1,
+          status: 1,
+          doctorName: "$doctor.name",
         },
       },
       {
@@ -57,6 +73,14 @@ export async function GET() {
           phone: { $first: "$phone" },
           appointmentCount: { $sum: 1 },
           lastAppointmentDate: { $max: "$date" },
+          appointments: {
+            $push: {
+              date: "$date",
+              time: "$time",
+              status: "$status",
+              doctorName: "$doctorName"
+            }
+          }
         },
       },
       {

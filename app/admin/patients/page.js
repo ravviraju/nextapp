@@ -8,6 +8,7 @@ export default function AdminPatientsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   const fetchPatients = async () => {
     try {
@@ -105,9 +106,12 @@ export default function AdminPatientsPage() {
                           {p.phone || <span className="text-slate-400 italic">Not provided</span>}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center justify-center bg-blue-50 text-blue-700 min-w-[2rem] h-6 px-2 rounded-full font-bold text-xs">
+                          <button
+                            onClick={() => setSelectedPatient(p)}
+                            className="inline-flex items-center justify-center bg-blue-50 text-blue-700 min-w-[2rem] h-6 px-2 rounded-full font-bold text-xs hover:bg-blue-100 transition"
+                          >
                             {p.appointmentCount} {p.appointmentCount === 1 ? "time" : "times"}
-                          </span>
+                          </button>
                         </td>
                         <td className="px-6 py-4 text-slate-500">
                           {p.lastAppointmentDate ? (
@@ -130,6 +134,80 @@ export default function AdminPatientsPage() {
           </div>
         </div>
       </div>
+
+      {/* Visited Appointments Modal */}
+      {selectedPatient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  Visited Appointments
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Patient: <span className="font-medium text-slate-700">{selectedPatient.name || "Unknown"}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedPatient(null)}
+                className="text-slate-400 hover:text-slate-600 transition bg-slate-100 hover:bg-slate-200 p-2 rounded-full"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              {selectedPatient.appointments && selectedPatient.appointments.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedPatient.appointments.map((appt, idx) => (
+                    <div key={idx} className="p-4 border rounded-xl shadow-sm bg-slate-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex flex-col">
+                        <div className="font-semibold text-slate-800 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {appt.date} {appt.time && <span className="text-slate-500 text-sm font-normal">at {appt.time}</span>}
+                        </div>
+                        <div className="text-sm text-slate-600 mt-2 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          Doctor: <span className="font-medium text-slate-700">{appt.doctorName || "Not assigned"}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                          appt.status === "completed" ? "bg-green-100 text-green-700 border border-green-200" :
+                          appt.status === "cancelled" ? "bg-red-100 text-red-700 border border-red-200" :
+                          "bg-amber-100 text-amber-700 border border-amber-200"
+                        }`}>
+                          {appt.status || "pending"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center flex flex-col items-center justify-center py-12">
+                  <svg className="w-12 h-12 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-slate-500 font-medium">No appointment details found.</p>
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t bg-slate-50 flex justify-end rounded-b-2xl">
+              <button
+                onClick={() => setSelectedPatient(null)}
+                className="px-6 py-2.5 bg-white border shadow-sm text-slate-700 font-semibold rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors focus:ring-2 focus:ring-slate-200 outline-none"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
